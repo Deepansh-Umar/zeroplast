@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rewards</title>
+</head>
+<body>
+  <header>
+    <h1>Rewards Store</h1>
+    <p>Your Points: {{ user_points }}</p>
+  </header>
+  <main>
+    <ul>
+      {% for r in rewards %}
+        <li>
+          {{ r.name }} - Costs {{ r.cost_points }} points
+          <form method="post" action="{{ url_for('rewards.redeem_reward', reward_id=r.id) }}">
+            <button type="submit">Redeem</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </main>
+</body>
+</html>
+{% endblock %}

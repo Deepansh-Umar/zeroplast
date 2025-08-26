@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+</head>
+<body>
+  <header>
+    <h1>Welcome {{ current_user.username }}</h1>
+    <nav>
+      <a href="{{ url_for('rewards.rewards_page') }}">Rewards</a>
+      <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Your Dashboard</h2>
+    <p>Total Points: {{ user_points }}</p>
+    <p>Start logging your plastic usage via the app endpoints.</p>
+  </main>
+</body>
+</html>
+{% endblock %}

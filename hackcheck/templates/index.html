@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ZeroPlast - Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <h1>🌍 ZeroPlast</h1>
+    <nav>
+      <a href="{{ url_for('auth.login') }}">Login</a>
+      <a href="{{ url_for('rewards.rewards_page') }}">Rewards</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Track, Reduce, and Reward Sustainable Living</h2>
+    <p>Join {{ total_users or 0 }} users who logged {{ total_items or 0 }} plastic items!</p>
+  </main>
+</body>
+</html>
+
+{% endblock %}

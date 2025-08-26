@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+  </header>
+  <main>
+    <h2>Totals</h2>
+    <ul>
+      <li>Total Items: {{ totals.items }}</li>
+      <li>Total Logs: {{ totals.logs }}</li>
+      <li>Total Users: {{ totals.users }}</li>
+      <li>Total Points: {{ totals.points }}</li>
+      <li>Plastic Saved (g): {{ totals.plastic_g }}</li>
+      <li>CO2 Saved (g): {{ totals.co2_g }}</li>
+    </ul>
+
+    <h2>Recommendations</h2>
+    <ul>
+      {% for rec in recommendations %}
+        <li>{{ rec }}</li>
+      {% endfor %}
+    </ul>
+
+    <h2>Trend (Daily Logs)</h2>
+    <p>Labels: {{ trend_labels }}</p>
+    <p>Values: {{ trend_values }}</p>
+  </main>
+</body>
+</html>
+{% endblock %}
