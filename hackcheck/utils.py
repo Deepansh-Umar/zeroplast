@@ -1,6 +1,126 @@
-from sqlalchemy import func
-from app_setup import db
 import models
+from sqlalchemy import func, distinct
+from app_setup import db
+from collections import Counter
+import os
+import matplotlib
+matplotlib.use('Agg')  # Use non-GUI backend for thread/process safety
+import matplotlib.pyplot as plt
+
+
+# -----------------------------
+# Awareness & Education Helpers
+# -----------------------------
+def estimate_impacts_from_counts(counts: dict) -> dict:
+    """
+    Estimate environmental impacts from item counts.
+    Returns dict with plastic_kg, co2_kg, landfill_l, marine_lives_saved.
+    """
+    factors = {
+        "bottle": {"plastic_kg": 0.02, "co2_kg": 0.054, "landfill_l": 0.05},
+        "bag":    {"plastic_kg": 0.01, "co2_kg": 0.027, "landfill_l": 0.02},
+        "cup":    {"plastic_kg": 0.015, "co2_kg": 0.04,  "landfill_l": 0.03},
+        "straw":  {"plastic_kg": 0.005, "co2_kg": 0.01,  "landfill_l": 0.005},
+    }
+    total = {"plastic_kg": 0.0, "co2_kg": 0.0, "landfill_l": 0.0}
+    total_items = 0
+    for item, count in counts.items():
+        f = factors.get(item.lower(), {"plastic_kg": 0, "co2_kg": 0, "landfill_l": 0})
+        total["plastic_kg"] += f["plastic_kg"] * count
+        total["co2_kg"] += f["co2_kg"] * count
+        total["landfill_l"] += f["landfill_l"] * count
+        total_items += count
+    total["plastic_kg"] = round(total["plastic_kg"], 3)
+    total["co2_kg"] = round(total["co2_kg"], 3)
+    total["landfill_l"] = round(total["landfill_l"], 3)
+    total["marine_lives_saved"] = max(0, round(total_items * 0.005, 2))
+    return total
+
+def nudge_for_user(user_id: int) -> dict:
+    """
+    Generate a friendly nudge for the user based on their plastic log history.
+    Returns dict with message, details, items_count.
+    """
+    from models import PlasticLog
+    counts = {}
+    total_items = 0
+    # Group by item and sum quantity
+    rows = db.session.query(PlasticLog.item, func.sum(PlasticLog.quantity)) \
+        .filter(PlasticLog.user_id == user_id) \
+        .group_by(PlasticLog.item).all()
+    for item, count in rows:
+        counts[item] = int(count)
+        total_items += int(count)
+    details = estimate_impacts_from_counts(counts)
+    if total_items >= 50:
+        msg = f"Amazing — you’ve avoided ~{details['plastic_kg']} kg plastic and ~{details['co2_kg']} kg CO₂e. Keep leading!"
+    elif total_items >= 10:
+        msg = f"Great progress — {total_items} items logged, approx {details['plastic_kg']} kg plastic avoided. Keep going!"
+    else:
+        msg = "Tip: Scan via QR for quicker logging. Try refill stations to cut more plastic."
+    return {"message": msg, "details": details, "items_count": total_items, "by_item": counts}
+
+def community_impact_summary() -> dict:
+    """
+    Aggregate community impact and stats.
+    Returns dict with total_items, unique_users, total_points, impact, by_item.
+    """
+    from models import PlasticLog, User, PointsLog
+    # By item
+    by_item = {}
+    total_items = 0
+    rows = db.session.query(PlasticLog.item, func.sum(PlasticLog.quantity)) \
+        .group_by(PlasticLog.item).all()
+    for item, count in rows:
+        by_item[item] = int(count)
+        total_items += int(count)
+    # Unique users
+    unique_users = db.session.query(func.count(distinct(PlasticLog.user_id))).scalar() or 0
+    # Total points
+    total_points = db.session.query(func.sum(PointsLog.delta)).scalar() or 0
+    # Impact
+    impact = estimate_impacts_from_counts(by_item)
+    return {
+        "total_items": total_items,
+        "unique_users": unique_users,
+        "total_points": total_points,
+        "impact": impact,
+        "by_item": by_item
+    }
+
+def save_graph_by_item(logs, user_id):
+    item_counts = Counter()
+    for l in logs:
+        item_counts[l.item] += l.quantity
+    top_items = item_counts.most_common(3)
+    items, counts = zip(*top_items) if top_items else ([],[])
+    fig, ax = plt.subplots()
+    ax.bar(items, counts, color=['#16a34a', '#22c55e', '#a3e635'])
+    ax.set_ylabel('Total Logged')
+    ax.set_title('Top 3 Items by Total Logged')
+    plt.tight_layout()
+    graph_path = os.path.join('static', 'graphs', f'items_{user_id}.png')
+    plt.savefig(graph_path)
+    plt.close(fig)
+    return graph_path
+
+def save_graph_by_day(logs, user_id):
+    day_counts = Counter()
+    for l in logs:
+        day = l.created_at.strftime('%Y-%m-%d')
+        day_counts[day] += l.quantity
+    top_days = day_counts.most_common(3)
+    days, counts = zip(*top_days) if top_days else ([],[])
+    fig, ax = plt.subplots()
+    ax.bar(days, counts, color=['#16a34a', '#22c55e', '#a3e635'])
+    ax.set_ylabel('Total Logged')
+    ax.set_title('Top 3 Days by Total Logged')
+    plt.tight_layout()
+    graph_path = os.path.join('static', 'graphs', f'days_{user_id}.png')
+    plt.savefig(graph_path)
+    plt.close(fig)
+    return graph_path
+
 
 # -----------------------------
 # Plastic Tracking + Points

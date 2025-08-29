@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body text-center">
+        <h2 class="fw-bold mb-2">Plastic Alternatives</h2>
+        <p class="mb-2">Find eco-friendly alternatives to common plastic items.</p>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('alternatives.show_alternatives') }}" class="mb-4">
+      <div class="input-group">
+        <input type="text" class="form-control" name="item_key" placeholder="Enter plastic item (e.g., bottle, bag)" required>
+        <button class="btn btn-success" type="submit">Find Alternatives</button>
+      </div>
+    </form>
+    {% if alternatives is defined %}
+      <div class="card border-info mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Alternatives for <span class="text-info">{{ item_key }}</span></h5>
+          {% if alternatives %}
+            <ul class="list-group list-group-flush">
+              {% for alt in alternatives %}
+                <li class="list-group-item">{{ alt }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted">No alternatives found.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    <div class="text-center mt-3">
+      <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,28 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rewards</title>
-</head>
-<body>
-  <header>
-    <h1>Rewards Store</h1>
-    <p>Your Points: {{ user_points }}</p>
-  </header>
-  <main>
-    <ul>
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body text-center">
+        <h2 class="fw-bold mb-2">Rewards Store</h2>
+        <p class="mb-2">Your Points: <span class="fw-bold text-success">{{ user_points }}</span></p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+          <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-success">Dashboard</a>
+          <a href="{{ url_for('alternatives.show_alternatives') }}" class="btn btn-outline-primary">Alternatives</a>
+          <a href="{{ url_for('community.community_page') }}" class="btn btn-outline-success">Community</a>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3">
       {% for r in rewards %}
-        <li>
-          {{ r.name }} - Costs {{ r.cost_points }} points
-          <form method="post" action="{{ url_for('rewards.redeem_reward', reward_id=r.id) }}">
-            <button type="submit">Redeem</button>
-          </form>
-        </li>
+      <div class="col-md-6">
+        <div class="card border-info">
+          <div class="card-body">
+            <h5 class="card-title">{{ r.name }}</h5>
+            <p class="card-text">Costs <span class="fw-bold text-info">{{ r.cost_points }}</span> points</p>
+            <form method="post" action="{{ url_for('rewards.redeem_reward', reward_id=r.id) }}">
+              <button type="submit" class="btn btn-primary">Redeem</button>
+            </form>
+          </div>
+        </div>
+      </div>
       {% endfor %}
-    </ul>
-  </main>
-</body>
-</html>
+    </div>
+  </div>
+</div>
 {% endblock %}

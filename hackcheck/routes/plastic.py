@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 from flask_login import login_required, current_user
 from app_setup import db
 import models
@@ -18,48 +18,49 @@ def get_logs():
     logs = models.PlasticLog.query.filter_by(user_id=current_user.id).all()
     return jsonify({"logs":[{"id":l.id,"item":l.item,"quantity":l.quantity} for l in logs]})
 
-@plastic_bp.route('/api/plastic/add', methods=['POST'])
+@plastic_bp.route('/plastic/add', methods=['GET', 'POST'])
 @login_required
 def add_log():
-    data = request.get_json() or {}
-    item = (data.get('item') or '').strip()
-    qty = int(data.get('quantity',1))
-    if not item: return jsonify({"ok": False, "error": "Item required"}), 400
-    log = models.PlasticLog(item=item, quantity=qty, user_id=current_user.id)
-    db.session.add(log)
-    db.session.add(models.PointsLog(user_id=current_user.id, delta=qty, reason='plastic_log'))
-    db.session.commit()
-    return jsonify({"ok": True})
+    if request.method == 'POST':
+        item = (request.form.get('item') or '').strip()
+        qty = int(request.form.get('quantity',1))
+        if not item:
+            return render_template('dashboard.html', error="Item required")
+        log = models.PlasticLog(item=item, quantity=qty, user_id=current_user.id)
+        db.session.add(log)
+        db.session.add(models.PointsLog(user_id=current_user.id, delta=qty, reason='plastic_log'))
+        db.session.commit()
+        return render_template('dashboard.html', message="Plastic log added!")
+    return render_template('add_plastic.html')
 
-@plastic_bp.route('/api/scan', methods=['POST'])
+@plastic_bp.route('/scan', methods=['GET', 'POST'])
 @login_required
 def api_scan():
-    data = request.get_json() or {}
-    code = (data.get('code') or '').strip()
-    item = (data.get('item') or '').strip()
-    qty = data.get('quantity'); quantity = None if qty is None else int(qty)
+    if request.method == 'POST':
+        code = (request.form.get('code') or '').strip()
+        item = (request.form.get('item') or '').strip()
+        qty = request.form.get('quantity'); quantity = None if qty is None else int(qty)
 
-    if not item and code:
-        if code.upper().startswith('BIN:'):
-            bin_id = code.split(':',1)[1].strip().upper()
-            mapped = SMART_BIN_MAP.get(bin_id)
-            item, quantity = (mapped[0], mapped[1]) if mapped else (f"Smart Bin {bin_id}", 1)
-        else:
-            try:
-                import json as _json
-                payload = _json.loads(code)
-                item = str(payload.get('item','')).strip()
-                quantity = int(payload.get('quantity',1))
-            except Exception:
-                item = code; quantity = quantity or 1
-
-    if not item: return jsonify({"ok": False, "error": "No item found in scan"}), 400
-    if quantity is None: quantity = 1
-    if quantity <= 0: return jsonify({"ok": False, "error": "Quantity must be positive"}), 400
-
-    log = models.PlasticLog(user_id=current_user.id, item=item, quantity=quantity)
-    db.session.add(log)
-    db.session.add(models.PointsLog(user_id=current_user.id, delta=quantity, reason='qr_scan'))
-    db.session.commit()
-    return jsonify({"ok": True, "log": {"id": log.id, "item": log.item, "quantity": log.quantity},
-                    "points": calculate_points(current_user.id)}), 201
+        if not item and code:
+            if code.upper().startswith('BIN:'):
+                bin_id = code.split(':',1)[1].strip().upper()
+                mapped = SMART_BIN_MAP.get(bin_id)
+                item, quantity = (mapped[0], mapped[1]) if mapped else (f"Smart Bin {bin_id}", 1)
+            else:
+                try:
+                    import json as _json
+                    payload = _json.loads(code)
+                except Exception:
+                    payload = None
+                if payload:
+                    item = payload.get('item', '')
+                    quantity = payload.get('quantity', 1)
+        # Save log if item is found
+        if item:
+            log = models.PlasticLog(item=item, quantity=quantity or 1, user_id=current_user.id)
+            db.session.add(log)
+            db.session.add(models.PointsLog(user_id=current_user.id, delta=quantity or 1, reason='scan'))
+            db.session.commit()
+            return render_template('dashboard.html', message="Scan log added!")
+        return render_template('dashboard.html', error="No item found from scan.")
+    return render_template('scan.html')

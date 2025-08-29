@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+      <div class="alert alert-success d-flex align-items-center" role="alert">
+        <span class="fs-3 me-3">🌱</span>
+        <div>
+          <strong>{{ nudge.message }}</strong>
+        </div>
+      </div>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+          <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-success">Dashboard</a>
+          <a href="{{ url_for('alternatives.show_alternatives') }}" class="btn btn-outline-primary">Alternatives</a>
+          <a href="{{ url_for('rewards.rewards_page') }}" class="btn btn-outline-info">Rewards</a>
+        </div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Your Impact</h5>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">Plastic avoided: <b>{{ nudge.details.plastic_kg }} kg</b></li>
+                <li class="list-group-item">CO₂e avoided: <b>{{ nudge.details.co2_kg }} kg</b></li>
+                <li class="list-group-item">Landfill saved: <b>{{ nudge.details.landfill_l }} L</b></li>
+                <li class="list-group-item">Marine lives saved: <b>{{ nudge.details.marine_lives_saved }}</b></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Your Top Items</h5>
+              <table class="table table-sm">
+                <thead><tr><th>Item</th><th>Count</th></tr></thead>
+                <tbody>
+                  {% for item, count in nudge.by_item.items()|sort(attribute='1', reverse=True) %}
+                  <tr><td>{{ item }}</td><td>{{ count }}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h4 class="fw-bold mb-3">Community Impact</h4>
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          {% include "_impact_card.html" with context %}
+          {% set title = "Total Items" %}{% set value = community.total_items %}
+          {% include "_impact_card.html" %}
+        </div>
+        <div class="col-md-3">
+          {% set title = "Unique Users" %}{% set value = community.unique_users %}
+          {% include "_impact_card.html" %}
+        </div>
+        <div class="col-md-3">
+          {% set title = "Total Points" %}{% set value = community.total_points %}
+          {% include "_impact_card.html" %}
+        </div>
+        <div class="col-md-3">
+          {% set title = "Plastic Avoided (kg)" %}{% set value = community.impact.plastic_kg %}
+          {% include "_impact_card.html" %}
+        </div>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          {% set title = "CO₂e Avoided (kg)" %}{% set value = community.impact.co2_kg %}
+          {% include "_impact_card.html" %}
+        </div>
+        <div class="col-md-4">
+          {% set title = "Landfill Saved (L)" %}{% set value = community.impact.landfill_l %}
+          {% include "_impact_card.html" %}
+        </div>
+        <div class="col-md-4">
+          {% set title = "Marine Lives Saved" %}{% set value = community.impact.marine_lives_saved %}
+          {% include "_impact_card.html" %}
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a href="{{ url_for('plastic.add_log') }}" class="btn btn-success btn-lg">Log Plastic</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from collections import defaultdict
 import models
-from utils import estimate_impacts
+from utils import estimate_impacts, estimate_impacts_from_counts
 admin_bp = Blueprint("admin", __name__)
 
 def aggregate_daily_logs():
@@ -21,13 +21,16 @@ def admin_dashboard():
         return "Unauthorized", 403
     logs = models.PlasticLog.query.all()
     total_items = sum(l.quantity for l in logs)
+    by_item = {}
+    for l in logs:
+        by_item[l.item] = by_item.get(l.item, 0) + l.quantity
     totals = {
         "items": total_items,
         "logs": len(logs),
         "users": models.User.query.count(),
         "points": sum(p.delta for p in models.PointsLog.query.all())
     }
-    totals.update(estimate_impacts(total_items))
+    totals.update(estimate_impacts_from_counts(by_item))
     dates, values = aggregate_daily_logs()
     recs = [
         'Ban single-use plastics at all campus events and canteens',

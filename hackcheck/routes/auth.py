@@ -18,7 +18,7 @@ def login():
         if user and user.password == password:  # TODO: hash check
             login_user(user)
             flash("Logged in successfully!", "success")
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("dashboard.dashboard"))
         else:
             flash("Invalid credentials", "danger")
 
@@ -42,6 +42,9 @@ def register():
         if models.User.query.filter_by(email=email).first():
             flash("User already exists!", "warning")
             return redirect(url_for("auth.register"))
+        if models.User.query.filter_by(username=name).first():
+            flash("User already exists!", "warning")
+            return redirect(url_for("auth.register"))
 
         new_user = models.User(username=name, email=email, password=password)
         db.session.add(new_user)
@@ -49,7 +52,7 @@ def register():
 
         login_user(new_user)
         flash("Registration successful!", "success")
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("dashboard.dashboard"))
 
     return render_template("register.html")
 

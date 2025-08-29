@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="mb-4 text-center">Scan Plastic Item</h2>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+          <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-success">Dashboard</a>
+          <a href="{{ url_for('alternatives.show_alternatives') }}" class="btn btn-outline-primary">Alternatives</a>
+          <a href="{{ url_for('rewards.rewards_page') }}" class="btn btn-outline-info">Rewards</a>
+          <a href="{{ url_for('community.community_page') }}" class="btn btn-outline-success">Community</a>
+        </div>
+        <form method="POST">
+          <div class="mb-3">
+            <label for="code" class="form-label">Scan Code</label>
+            <input type="text" class="form-control" id="code" name="code">
+          </div>
+          <div class="mb-3">
+            <label for="item" class="form-label">Item (optional)</label>
+            <input type="text" class="form-control" id="item" name="item">
+          </div>
+          <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity (optional)</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="1">
+          </div>
+          <button type="submit" class="btn btn-success w-100">Submit Scan</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

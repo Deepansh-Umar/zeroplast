@@ -1,11 +1,17 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import func
-from utils import nudge_for_items
-from utils import estimate_impacts
-import models
+from utils import nudge_for_items, estimate_impacts, nudge_for_user, community_impact_summary
 
 community_bp = Blueprint("community", __name__)
+@community_bp.route('/community')
+@login_required
+def community_page():
+    nudge = nudge_for_user(current_user.id)
+    community = community_impact_summary()
+    return render_template('community.html', nudge=nudge, community=community)
+import models
+
 
 @community_bp.route('/api/community/stats')
 @login_required
