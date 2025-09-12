@@ -39,7 +39,8 @@ if __name__ == '__main__':
         # Seed admin user
         admin = models.User(
             username="Admin",
-            password=generate_password_hash("admin123")
+            password="admin@123",
+            email= "admin@gmail.com"
         )
 
         existing_admin = models.User.query.filter_by(username="Admin").first()

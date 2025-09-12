@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="mb-4 text-center">Register as Vendor</h2>
+        <form method="POST" action="{{ url_for('auth.register_vendor') }}">
+          <div class="mb-3">
+            <label for="name" class="form-label">Vendor Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="discount" class="form-label">Discount (%)</label>
+            <input type="number" class="form-control" id="discount" name="discount" min="0" max="100" value="0">
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Register Vendor</button>
+        </form>
+        <div class="mt-3 text-center">
+          <span class="text-muted">Already have an account?</span> <a href="{{ url_for('auth.login') }}">Login here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

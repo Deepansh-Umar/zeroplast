@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request, render_template,url_for,redirect
 from flask_login import login_required, current_user
 from app_setup import db
 import models
@@ -30,7 +30,7 @@ def add_log():
         db.session.add(log)
         db.session.add(models.PointsLog(user_id=current_user.id, delta=qty, reason='plastic_log'))
         db.session.commit()
-        return render_template('dashboard.html', message="Plastic log added!")
+        return redirect(url_for('dashboard.dashboard'))
     return render_template('add_plastic.html')
 
 @plastic_bp.route('/scan', methods=['GET', 'POST'])

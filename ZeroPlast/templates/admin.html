@@ -1,40 +1,5 @@
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
-</head>
-<body>
-  <header>
-    <h1>Admin Dashboard</h1>
-  </header>
-  <main>
-    <h2>Totals</h2>
-    <ul>
-      <li>Total Items: {{ totals.items }}</li>
-      <li>Total Logs: {{ totals.logs }}</li>
-      <li>Total Users: {{ totals.users }}</li>
-      <li>Total Points: {{ totals.points }}</li>
-      <li>Plastic Saved (g): {{ totals.plastic_g }}</li>
-      <li>CO2 Saved (g): {{ totals.co2_g }}</li>
-    </ul>
-
-    <h2>Recommendations</h2>
-    <ul>
-      {% for rec in recommendations %}
-        <li>{{ rec }}</li>
-      {% endfor %}
-    </ul>
-
-    <h2>Trend (Daily Logs)</h2>
-    <p>Labels: {{ trend_labels }}</p>
-    <p>Values: {{ trend_values }}</p>
-  </main>
-</body>
-</html>
-{% endblock %}
 {% extends "base.html" %}
+
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-10">
@@ -42,33 +7,123 @@
       <div class="card-body text-center">
         <h2 class="fw-bold mb-2">Admin Dashboard</h2>
         <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
-          <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-success">Dashboard</a>
-          <a href="{{ url_for('alternatives.show_alternatives') }}" class="btn btn-outline-primary">Alternatives</a>
+          <a href="{{ url_for('admin.admin') }}" class="btn btn-outline-success">Dashboard</a>
+          <a href="{{ url_for('admin.users_page') }}" class="btn btn-outline-secondary">Users</a>
+          <a href="{{ url_for('admin.vendors_page') }}" class="btn btn-outline-warning">Vendors</a>
+          <a href="{{ url_for('admin.challenges_page') }}" class="btn btn-outline-primary">Challenges</a>
           <a href="{{ url_for('rewards.rewards_page') }}" class="btn btn-outline-info">Rewards</a>
           <a href="{{ url_for('community.community_page') }}" class="btn btn-outline-success">Community</a>
         </div>
+          <img src="{{ url_for('static', filename='recycle.svg') }}" alt="Recycle" class="img-fluid my-3" style="max-width:180px;">
       </div>
     </div>
+    <!-- Vendors Table -->
+    <div class="card mb-4">
+      <div class="card-header bg-warning text-dark fw-bold">Vendors</div>
+      <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Discount (%)</th>
+              <th>Description</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vendor in vendors %}
+            <tr>
+              <td>{{ vendor.name }}</td>
+              <td>{{ vendor.discount }}</td>
+              <td>{{ vendor.description }}</td>
+              <td><a href="{{ url_for('admin.vendor_detail', vendor_id=vendor.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white fw-bold">Users</div>
+      <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td><a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-info">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Host Challenge Form -->
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white fw-bold">Host a Challenge</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.host_challenge') }}">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Name</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Description</label>
+              <input type="text" name="description" class="form-control">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Start Date</label>
+              <input type="date" name="start_date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">End Date</label>
+              <input type="date" name="end_date" class="form-control" required>
+            </div>
+            <div class="col-md-1">
+              <label class="form-label">Bonus</label>
+              <input type="number" name="points_bonus" class="form-control" value="10" min="0">
+            </div>
+            <div class="col-md-12 mt-2">
+              <button type="submit" class="btn btn-success">Host Challenge</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div class="row mb-4">
       <div class="col-md-6">
         <div class="card border-success mb-3">
           <div class="card-body">
-            <h5 class="card-title">Totals</h5>
+            <h5 class="card-title"><i class="bi bi-bar-chart-line"></i> Totals</h5>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item">Total Items: {{ totals.items }}</li>
-              <li class="list-group-item">Total Logs: {{ totals.logs }}</li>
-              <li class="list-group-item">Total Users: {{ totals.users }}</li>
-              <li class="list-group-item">Total Points: {{ totals.points }}</li>
-              <li class="list-group-item">Plastic Saved (g): {{ totals.plastic_g }}</li>
-              <li class="list-group-item">CO2 Saved (g): {{ totals.co2_g }}</li>
+              <li class="list-group-item">Total Items: {{ tot_it }}</span></li>
+              <li class="list-group-item">Total Logs: {{ totals.logs }}</span></li>
+              <li class="list-group-item">Total Users: {{ totals.users }}</span></li>
+              <li class="list-group-item">Total Points: {{ totals.points }}</span></li>
+              <li class="list-group-item">Plastic Saved (g): {{ totals.plastic_g }}</span></li>
+              <li class="list-group-item">CO2 Saved (g):{{ totals.co2_g }}</span></li>
             </ul>
           </div>
         </div>
       </div>
+
       <div class="col-md-6">
         <div class="card border-info mb-3">
           <div class="card-body">
-            <h5 class="card-title">Recommendations</h5>
+            <h5 class="card-title"><i class="bi bi-lightbulb"></i> Recommendations</h5>
             <ul class="list-group list-group-flush">
               {% for rec in recommendations %}
                 <li class="list-group-item">{{ rec }}</li>
@@ -76,13 +131,8 @@
             </ul>
           </div>
         </div>
-        <div class="card border-warning">
-          <div class="card-body">
-            <h5 class="card-title">Trend (Daily Logs)</h5>
-            <p><strong>Labels:</strong> {{ trend_labels }}</p>
-            <p><strong>Values:</strong> {{ trend_values }}</p>
-          </div>
-        </div>
+
+        <!-- Removed broken graph section -->
       </div>
     </div>
   </div>

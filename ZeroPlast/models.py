@@ -45,6 +45,10 @@ class Redemption(db.Model):
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=True, nullable=False)
+    members = db.relationship('User', secondary='team_membership',
+                              primaryjoin='Team.id==TeamMembership.team_id',
+                              secondaryjoin='User.id==TeamMembership.user_id',
+                              backref='teams', lazy='dynamic')
 
 class TeamMembership(db.Model):
     id = db.Column(db.Integer, primary_key=True)

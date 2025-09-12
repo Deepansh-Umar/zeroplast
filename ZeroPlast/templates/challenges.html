@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="fw-bold mb-3">Challenges</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Bonus</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for challenge in challenges %}
+          <tr>
+            <td>{{ challenge.name }}</td>
+            <td>{{ challenge.description }}</td>
+            <td>{{ challenge.start_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ challenge.end_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ challenge.points_bonus }}</td>
+            <td><a href="{{ url_for('challenge.challenge_detail', challenge_id=challenge.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

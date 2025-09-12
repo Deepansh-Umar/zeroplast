@@ -11,6 +11,8 @@ from routes.rewards import rewards_bp
 from routes.community import community_bp
 from routes.dashboard import dashboard_bp
 from routes.admin import admin_bp
+from routes.challenge import challenge_bp
+from routes.teams import teams_bp
 
 
 
@@ -48,6 +50,10 @@ app.register_blueprint(alts_bp, url_prefix="/alternatives")
 app.register_blueprint(rewards_bp, url_prefix="/rewards")
 app.register_blueprint(community_bp, url_prefix="/community")
 app.register_blueprint(admin_bp, url_prefix="/admin")
+
+app.register_blueprint(challenge_bp)
+
+app.register_blueprint(teams_bp)
 app.register_blueprint(dashboard_bp)
 
 if __name__ == "__main__":

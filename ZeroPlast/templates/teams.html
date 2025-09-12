@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="fw-bold mb-3">Teams</h2>
+
+      <!-- Team Creation Form -->
+      <div class="mb-3">
+        <form method="post" action="{{ url_for('teams.create') }}" class="d-flex mb-3">
+          <input type="text" name="name" class="form-control me-2" placeholder="New Team Name" required>
+          <button type="submit" class="btn btn-primary">Add Team</button>
+        </form>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h4>All Teams</h4>
+          <ul class="list-group mb-4">
+            {% for team in teams %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <b>{{ team.name }}</b>
+
+                {% if joined_team and team.id == joined_team.id %}
+                  <span class="badge bg-success ms-2">Joined</span>
+                  <!-- Leave Team Form -->
+                  <form method="post" action="{{ url_for('teams.leave') }}" class="d-inline">
+                    <input type="hidden" name="team_id" value="{{ team.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger ms-2">Leave</button>
+                  </form>
+                {% else %}
+                  <!-- Join Team Form -->
+                  <form method="post" action="{{ url_for('teams.join') }}" class="d-inline">
+                    <input type="hidden" name="team_id" value="{{ team.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-success ms-2">Join</button>
+                  </form>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-md-6">
+          <h4>Team Members</h4>
+          {% for team in teams %}
+            <div class="mb-3">
+              <b>{{ team.name }}</b>
+              <ul class="list-group">
+                {% for member in team.members %}
+                  <li class="list-group-item">{{ member.username }}</li>
+                {% else %}
+                  <li class="list-group-item text-muted">No members yet</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -6,6 +6,8 @@ import os
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for thread/process safety
 import matplotlib.pyplot as plt
+import io
+import base64
 
 
 # -----------------------------
@@ -284,3 +286,25 @@ def seed_admin():
         db.session.commit()
         return True
     return False
+
+
+def generate_trend_graph(labels, values):
+    """Generate a trend graph and return it as a base64 string."""
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    ax.plot(labels, values, marker='o', linestyle='-', color='b')
+    ax.set(xlabel='Date', ylabel='Items Processed', title='Daily Plastic Log Trend')
+
+    # Rotate the x-axis labels for readability
+    plt.xticks(rotation=45, ha='right')
+
+    # Save the plot to a BytesIO buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    # Convert image to base64 for rendering in HTML
+    img_str = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    return img_str

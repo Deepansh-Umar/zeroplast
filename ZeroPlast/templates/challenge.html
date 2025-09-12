@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="fw-bold mb-3">Challenge: {{ challenge.name }}</h2>
+      <p><strong>Description:</strong> {{ challenge.description }}</p>
+      <p><strong>Start:</strong> {{ challenge.start_date.strftime('%Y-%m-%d') }} | <strong>End:</strong> {{ challenge.end_date.strftime('%Y-%m-%d') }}</p>
+      <p><strong>Bonus Points:</strong> {{ challenge.points_bonus }}</p>
+      {% if not joined %}
+      <form method="post" action="{{ url_for('challenge.join', challenge_id=challenge.id) }}">
+        <button type="submit" class="btn btn-success">Join Challenge</button>
+      </form>
+      {% else %}
+      <span class="badge bg-success">You have joined this challenge!</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white fw-bold">User Leaderboard</div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in user_leaderboard %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ entry.user.username }}</td>
+                <td>{{ entry.points }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white fw-bold">Team Leaderboard</div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Rank</th>
+                <th>Team</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in team_leaderboard %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ entry.team.name }}</td>
+                <td>{{ entry.points }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
