@@ -17,59 +17,7 @@
           <img src="{{ url_for('static', filename='recycle.svg') }}" alt="Recycle" class="img-fluid my-3" style="max-width:180px;">
       </div>
     </div>
-    <!-- Vendors Table -->
-    <div class="card mb-4">
-      <div class="card-header bg-warning text-dark fw-bold">Vendors</div>
-      <div class="card-body p-0">
-        <table class="table table-striped mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Name</th>
-              <th>Discount (%)</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for vendor in vendors %}
-            <tr>
-              <td>{{ vendor.name }}</td>
-              <td>{{ vendor.discount }}</td>
-              <td>{{ vendor.description }}</td>
-              <td><a href="{{ url_for('admin.vendor_detail', vendor_id=vendor.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Users Table -->
-    <div class="card mb-4">
-      <div class="card-header bg-secondary text-white fw-bold">Users</div>
-      <div class="card-body p-0">
-        <table class="table table-striped mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for user in users %}
-            <tr>
-              <td>{{ user.username }}</td>
-              <td>{{ user.email }}</td>
-              <td><a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-info">View</a></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Host Challenge Form -->
+    
     <div class="card mb-4">
       <div class="card-header bg-success text-white fw-bold">Host a Challenge</div>
       <div class="card-body">
@@ -113,8 +61,8 @@
               <li class="list-group-item">Total Logs: {{ totals.logs }}</span></li>
               <li class="list-group-item">Total Users: {{ totals.users }}</span></li>
               <li class="list-group-item">Total Points: {{ totals.points }}</span></li>
-              <li class="list-group-item">Plastic Saved (g): {{ totals.plastic_g }}</span></li>
-              <li class="list-group-item">CO2 Saved (g):{{ totals.co2_g }}</span></li>
+              <li class="list-group-item">Plastic Saved (kg): {{ totals.plastic_kg }}</span></li>
+              <li class="list-group-item">CO2 Saved (kg): {{ totals.co2_kg }}</span></li>
             </ul>
           </div>
         </div>

@@ -40,7 +40,8 @@ if __name__ == '__main__':
         admin = models.User(
             username="Admin",
             password="admin@123",
-            email= "admin@gmail.com"
+            email= "admin@gmail.com",
+            role = "admin"
         )
 
         existing_admin = models.User.query.filter_by(username="Admin").first()

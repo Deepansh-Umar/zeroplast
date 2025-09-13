@@ -22,6 +22,8 @@ def dashboard():
     days_graph = save_graph_by_day(logs, current_user.id)
     message = request.args.get('message')
     error = request.args.get('error')
+    from utils import nudge_for_user
+    nudge = nudge_for_user(current_user.id)
     return render_template('dashboard.html',
                            user_points=user_points,
                            plastic_usage_today=plastic_usage_today,
@@ -30,6 +32,7 @@ def dashboard():
                            items_graph=items_graph,
                            days_graph=days_graph,
                            message=message,
-                           error=error)
+                           error=error,
+                           nudge=nudge)
 
 

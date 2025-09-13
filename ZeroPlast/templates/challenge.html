@@ -44,31 +44,6 @@
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card mb-4">
-        <div class="card-header bg-success text-white fw-bold">Team Leaderboard</div>
-        <div class="card-body p-0">
-          <table class="table table-striped mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Rank</th>
-                <th>Team</th>
-                <th>Points</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for entry in team_leaderboard %}
-              <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ entry.team.name }}</td>
-                <td>{{ entry.points }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}

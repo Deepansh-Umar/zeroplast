@@ -8,7 +8,13 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
+        if hasattr(current_user, 'role'):
+            if current_user.role == 'admin':
+                return redirect(url_for("admin.admin"))
+            elif current_user.role == 'vendor':
+                return redirect(url_for("admin.vendor_detail", user_id=current_user.id))
+            return redirect(url_for("dashboard.dashboard"))
+        return redirect(url_for("dashboard.dashboard"))
 
     if request.method == "POST":
         email = request.form.get("email")
@@ -16,10 +22,19 @@ def login():
 
         user = models.User.query.filter_by(email=email).first()
         if user and user.password == password:  # TODO: hash check
-            if user.username == "Admin":
-                login_user(user)
-                return redirect(url_for("admin.admin"))
             login_user(user)
+            # Redirect by role
+            if hasattr(user, 'role'):
+                if user.role == 'admin':
+                    return redirect(url_for("admin.admin"))
+                elif user.role == 'vendor':
+                    vendor = models.Vendor.query.filter_by(name=user.username).first()
+                    if vendor:
+                        return redirect(url_for("admin.vendor_detail", user_id=user.id))
+                # default user
+                flash("Logged in successfully!", "success")
+                return redirect(url_for("dashboard.dashboard"))
+
             flash("Logged in successfully!", "success")
             return redirect(url_for("dashboard.dashboard"))
         else:
@@ -69,16 +84,29 @@ def register_vendor():
 
     if request.method == "POST":
         name = request.form.get("name")
+        email = request.form.get("email")
+        password = request.form.get("password")
         discount = request.form.get("discount", 0)
         description = request.form.get("description", "")
 
-        if not name:
-            flash("Vendor name is required!", "danger")
+        if not all([name, email, password]):
+            flash("All fields are required!", "danger")
+            return redirect(url_for("auth.register_vendor"))
+        if models.User.query.filter_by(email=email).first():
+            flash("Email already registered!", "warning")
+            return redirect(url_for("auth.register_vendor"))
+        if models.User.query.filter_by(username=name).first():
+            flash("Vendor name already registered as user!", "warning")
             return redirect(url_for("auth.register_vendor"))
         if models.Vendor.query.filter_by(name=name).first():
             flash("Vendor already exists!", "warning")
             return redirect(url_for("auth.register_vendor"))
 
+        # Add to User table with role vendor
+        new_vendor_user = models.User(username=name, email=email, password=password, role="vendor")
+        db.session.add(new_vendor_user)
+        
+        # Add to Vendor table
         vendor = models.Vendor(name=name, discount=discount, description=description)
         db.session.add(vendor)
         db.session.commit()

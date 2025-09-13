@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash,abort
 from flask_login import login_required, current_user
 from collections import defaultdict
 import models
@@ -46,8 +46,8 @@ def admin():
     if totals["users"] > 50:
         recs.append('Launch inter-department eco-leaderboards with small grants')
 
-    vendors = models.Vendor.query.all()
-    users = models.User.query.all()
+    vendors = models.User.query.filter_by(role="vendor").all()
+    users = models.User.query.filter_by(role="user").all()
     return render_template('admin.html',
        trend_labels=dates, trend_values=values, recommendations=recs, tot_it=total_items,
         vendors=vendors, users=users, totals=totals)
@@ -58,35 +58,23 @@ def admin():
 @admin_bp.route('/admin/vendors')
 @login_required
 def vendors_page():
-    logs = models.PlasticLog.query.all()
-    total_items = int(sum([l.quantity for l in logs]))
-    by_item = {}
-    for l in logs:
-        by_item[l.item] = by_item.get(l.item, 0) + l.quantity
-    totals = {
-        "logs": len(logs),
-        "users": models.User.query.count(),
-        "points": sum(p.delta for p in models.PointsLog.query.all())
-    }
-    totals.update(estimate_impacts_from_counts(by_item))
-    recs = [
-        'Ban single-use plastics at all campus events and canteens',
-        'Install mandatory water refill stations in every building',
-        'Vendor contracts must use reusable/compostable packaging',
-        'Offer BYO discounts at partner vendors',
-        'Run a “Plastic-Free Week” each semester',
-    ]
-    vendors = models.Vendor.query.all()
-    users = models.User.query.all()
-    return render_template('admin.html', vendors=vendors, users=users, totals=totals, recommendations=recs, tot_it=total_items, trend_labels=[], trend_values=[])
-
+    vendors = models.User.query.filter_by(role="vendor").all()
+    return render_template('vendors.html', vendors=vendors)
 # Vendor detail page
-@admin_bp.route('/admin/vendor/<int:vendor_id>')
+@admin_bp.route('/admin/vendor/<int:user_id>')
 @login_required
-def vendor_detail(vendor_id):
-    vendor = models.Vendor.query.get_or_404(vendor_id)
-    alternatives = models.AlternativeItem.query.filter_by(vendor_id=vendor.id).all()
-    return render_template('vendor.html', vendor=vendor, alternatives=alternatives)
+def vendor_detail(user_id):
+    user = models.User.query.get_or_404(user_id)
+
+    if user.role != "vendor":
+        abort(404)  # or handle as appropriate
+
+    vendor = models.Vendor.query.filter_by(name=user.username).first()
+
+    if not vendor:
+        abort(404)
+
+    return render_template('vendor.html', user=user, vendor=vendor)
 
 
 # Users list page
@@ -111,10 +99,8 @@ def users_page():
         'Offer BYO discounts at partner vendors',
         'Run a “Plastic-Free Week” each semester',
     ]
-    vendors = models.Vendor.query.all()
-    users = models.User.query.all()
-    return render_template('admin.html', users=users, vendors=vendors, totals=totals, recommendations=recs, tot_it=total_items, trend_labels=[], trend_values=[])
-
+    users = models.User.query.filter_by(role="user").all()
+    return render_template('users.html', users=users)
 # User detail page
 @admin_bp.route('/admin/user/<int:user_id>')
 @login_required

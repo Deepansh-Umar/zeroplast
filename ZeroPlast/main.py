@@ -35,7 +35,14 @@ def load_user(user_id):
 @app.route('/')
 def home():
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard.dashboard"))  # send logged-in users to dashboard
+        if current_user.role == 'admin':
+            return redirect(url_for("admin.admin"))
+        elif current_user.role == 'vendor':
+            vendor = models.Vendor.query.filter_by(name=current_user.username).first()
+            if vendor:
+                return redirect(url_for("admin.vendor_detail", vendor_id=vendor.id))
+        # default user
+        return redirect(url_for("dashboard.dashboard")) 
     return render_template('index.html',
                            total_donations=0,
                            total_users=0,
