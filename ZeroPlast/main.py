@@ -64,4 +64,4 @@ app.register_blueprint(teams_bp)
 app.register_blueprint(dashboard_bp)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
